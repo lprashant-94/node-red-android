@@ -24,7 +24,9 @@ node-red
 2) Run above commands, last command start node-red.
 3) At this point node-red server will be running on your mobile. Its configuration page can be opened from IP:1880. Now start configuring device using flow language. battery-status.json file contains configuration.
 
-
+## Visualisations
+![Current Values](Current_Values.png?raw=true 'Current Values')
+![Trend](Trend.png?raw=true 'Trend')
 
 ## Next steps
 - Calculate moving derivatives of battery percentage and temperature.
