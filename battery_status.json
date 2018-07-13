@@ -1,0 +1,184 @@
+[
+    {
+        "id": "c92df63f.3493c8",
+        "type": "tab",
+        "label": "Battery Status",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "9f316355.4f2c2",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "Datonis",
+        "broker": "telemetry.datonis.io",
+        "port": "1883",
+        "clientid": "moto_87a3f5b3317d9afdtbcbeba6527b4fd759923t5e",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "69c7a2ae.49b1bc",
+        "type": "inject",
+        "z": "c92df63f.3493c8",
+        "name": "",
+        "topic": "",
+        "payload": "{   \"data\": { \"battery\": 10 },   \"thing_key\": \"d13496e6a3\",   \"access_key\": \"87a3f5b3317d9afdtbcbeba6527b4fd759923t5e\",   \"timestamp\": 1531180873940 }",
+        "payloadType": "json",
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "8c56b80.9622e48"
+            ]
+        ]
+    },
+    {
+        "id": "74b8a121.4c544",
+        "type": "mqtt in",
+        "z": "c92df63f.3493c8",
+        "name": "HTTP Acknowledgement",
+        "topic": "Altizon/Datonis/moto_87a3f5b3317d9afdtbcbeba6527b4fd759923t5e/httpAck",
+        "qos": "1",
+        "broker": "9f316355.4f2c2",
+        "x": 130,
+        "y": 460,
+        "wires": [
+            [
+                "f45e31f2.a8166"
+            ]
+        ]
+    },
+    {
+        "id": "d6627879.c1bae8",
+        "type": "mqtt out",
+        "z": "c92df63f.3493c8",
+        "name": "MQTT Event Topic",
+        "topic": "Altizon/Datonis/moto_87a3f5b3317d9afdtbcbeba6527b4fd759923t5e/event",
+        "qos": "",
+        "retain": "",
+        "broker": "9f316355.4f2c2",
+        "x": 610,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "a4fbf65e.a10768",
+        "type": "debug",
+        "z": "c92df63f.3493c8",
+        "name": "Output payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 660,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "8c56b80.9622e48",
+        "type": "exec",
+        "z": "c92df63f.3493c8",
+        "command": "termux-battery-status",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 200,
+        "y": 240,
+        "wires": [
+            [
+                "a4fbf65e.a10768",
+                "4d52197e.adf1d8"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "4d52197e.adf1d8",
+        "type": "json",
+        "z": "c92df63f.3493c8",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 370,
+        "y": 160,
+        "wires": [
+            [
+                "de8e1137.bc80c"
+            ]
+        ]
+    },
+    {
+        "id": "de8e1137.bc80c",
+        "type": "function",
+        "z": "c92df63f.3493c8",
+        "name": "Baterry percentage observer",
+        "func": "// battery_status['percentage']\nmsg = {\n    \"payload\":{\n  \"data\": msg.payload,\n  \"thing_key\": \"d13496e6a3\",\n  \"access_key\": \"87a3f5b3317d9afdtbcbeba6527b4fd759923t5e\",\n  \"timestamp\": new Date().getTime()\n}\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 570,
+        "y": 220,
+        "wires": [
+            [
+                "a4fbf65e.a10768",
+                "d6627879.c1bae8"
+            ]
+        ],
+        "inputLabels": [
+            "battery_status"
+        ]
+    },
+    {
+        "id": "f45e31f2.a8166",
+        "type": "json",
+        "z": "c92df63f.3493c8",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 310,
+        "y": 460,
+        "wires": [
+            [
+                "17687305.3ae0cd"
+            ]
+        ]
+    },
+    {
+        "id": "17687305.3ae0cd",
+        "type": "function",
+        "z": "c92df63f.3493c8",
+        "name": "",
+        "func": "return {'payload': msg.payload['http_code']};",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 460,
+        "wires": [
+            [
+                "a4fbf65e.a10768"
+            ]
+        ]
+    }
+]
