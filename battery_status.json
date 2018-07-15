@@ -56,8 +56,8 @@
         "topic": "Altizon/Datonis/moto_87a3f5b3317d9afdtbcbeba6527b4fd759923t5e/httpAck",
         "qos": "1",
         "broker": "9f316355.4f2c2",
-        "x": 130,
-        "y": 460,
+        "x": 250,
+        "y": 880,
         "wires": [
             [
                 "f45e31f2.a8166"
@@ -86,9 +86,9 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "x": 660,
-        "y": 380,
+        "complete": "true",
+        "x": 720,
+        "y": 320,
         "wires": []
     },
     {
@@ -157,11 +157,12 @@
         "property": "payload",
         "action": "obj",
         "pretty": false,
-        "x": 310,
-        "y": 460,
+        "x": 430,
+        "y": 880,
         "wires": [
             [
-                "17687305.3ae0cd"
+                "17687305.3ae0cd",
+                "1a667cb6.0ecfc3"
             ]
         ]
     },
@@ -170,14 +171,166 @@
         "type": "function",
         "z": "c92df63f.3493c8",
         "name": "",
-        "func": "return {'payload': msg.payload['http_code']};",
+        "func": "\nreturn {'payload': msg.payload['http_code']};",
         "outputs": 1,
         "noerr": 0,
-        "x": 430,
-        "y": 460,
+        "x": 610,
+        "y": 860,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5db355ad.07b40c",
+        "type": "exec",
+        "z": "c92df63f.3493c8",
+        "command": "grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}'",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "CPU %",
+        "x": 320,
+        "y": 540,
         "wires": [
             [
-                "a4fbf65e.a10768"
+                "af9bec82.34896"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "40bc62a4.4e79fc",
+        "type": "inject",
+        "z": "c92df63f.3493c8",
+        "name": "",
+        "topic": "",
+        "payload": "{}",
+        "payloadType": "json",
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 190,
+        "y": 600,
+        "wires": [
+            [
+                "5db355ad.07b40c",
+                "30730b85.4cd784"
+            ]
+        ]
+    },
+    {
+        "id": "30730b85.4cd784",
+        "type": "exec",
+        "z": "c92df63f.3493c8",
+        "command": "free | grep Mem | awk '{print $3/$2 * 100.0}'",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "RAM %",
+        "x": 340,
+        "y": 620,
+        "wires": [
+            [
+                "b82cfa29.6b2548"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "477f7491.35664c",
+        "type": "join",
+        "z": "c92df63f.3493c8",
+        "name": "JOIN",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "2",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 630,
+        "y": 680,
+        "wires": [
+            [
+                "64c22a11.df5ea4"
+            ]
+        ]
+    },
+    {
+        "id": "af9bec82.34896",
+        "type": "function",
+        "z": "c92df63f.3493c8",
+        "name": "convert to payload",
+        "func": "msg = {\n payload: parseFloat(msg.payload),\n topic: 'cpu'\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 500,
+        "wires": [
+            [
+                "477f7491.35664c"
+            ]
+        ]
+    },
+    {
+        "id": "b82cfa29.6b2548",
+        "type": "function",
+        "z": "c92df63f.3493c8",
+        "name": "convert to payload",
+        "func": "msg = {\n payload: parseFloat(msg.payload),\n topic: 'ram'\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 490,
+        "y": 720,
+        "wires": [
+            [
+                "477f7491.35664c"
+            ]
+        ]
+    },
+    {
+        "id": "1a667cb6.0ecfc3",
+        "type": "debug",
+        "z": "c92df63f.3493c8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 580,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "64c22a11.df5ea4",
+        "type": "function",
+        "z": "c92df63f.3493c8",
+        "name": "CPU percentage observer",
+        "func": "// battery_status['percentage']\nmsg = {\n    \"payload\":{\n  \"data\": msg.payload,\n  \"thing_key\": \"25tabca4e1\",\n  \"access_key\": \"87a3f5b3317d9afdtbcbeba6527b4fd759923t5e\",\n  \"timestamp\": new Date().getTime()\n}\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 510,
+        "y": 400,
+        "wires": [
+            [
+                "a4fbf65e.a10768",
+                "d6627879.c1bae8"
             ]
         ]
     }
